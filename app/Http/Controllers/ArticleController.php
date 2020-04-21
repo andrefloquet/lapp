@@ -27,9 +27,9 @@ class ArticleController extends Controller
      */
     public function index()
     {
-        // Pagination
-        $pag = 10;
-
+        // Pagination: quantity per page
+        $pag = 6;
+        // Improve code below
         if(request('tag')){
             if(auth()->check()) {
                 $articles = Tag::find(request('tag'))->articles()->where('user_id', auth()->user()->id)->paginate($pag);
@@ -38,7 +38,7 @@ class ArticleController extends Controller
             }
         } else {
             if(auth()->check()) {
-                $articles = Article::where('user_id', auth()->user()->id)->latest()->paginate($pag);
+                $articles = auth()->user()->articles()->latest()->paginate($pag);
             } else {
                 $articles = Article::latest()->paginate($pag);
             }
