@@ -13,9 +13,16 @@
                 {{ $article->title }}
             </div>
             <div class="card-body">
-                <h5 class="card-title">{{ $article->excerpt }}</h5>
-                <p class="card-text">Written on {{ $article->created_at }}</p>
-                <a href="{{ $article->path() }}" class="btn btn-secondary">See Full Article</a>
+                <div class="row">
+                    <div class="col-sm|md|lg|xl-4 m-3">
+                        <img style="width:100%" src="/storage/images/{{ $article->image }}">
+                    </div>
+                    <div class="col-sm|md|lg|xl-8 m-3">
+                        <h5 class="card-title">{{ $article->excerpt }}</h5>
+                        <p class="card-text">Written on {{ $article->created_at }}</p>
+                        <a href="{{ $article->path() }}" class="btn btn-secondary">See Full Article</a>
+                    </div>                    
+                </div>
             </div>
         </div>
         <br>

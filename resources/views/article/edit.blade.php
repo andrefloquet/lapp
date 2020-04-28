@@ -2,7 +2,7 @@
 
 @section("content") 
     <h1 class="display-4">Update Article</h1>
-    <form method="POST" action="{{ $article->path() }}">
+    <form method="POST" action="{{ $article->path() }}" enctype="multipart/form-data">
         @csrf
         @method('PUT')
 
@@ -44,8 +44,22 @@
                     </option>
                 @endforeach
             </select>
-        </div>                 
+        </div> 
+        <div class="custom-file mb-3">
+            <input type="file" class="custom-file-input" id="image" name="image">
+        <label class="custom-file-label" for="image">{{ $article->image }}</label>
+        </div>                
         <button type="submit" class="btn btn-primary">Save</button> 
         <a class="btn btn-secondary" href="{{ $article->path() }}">Cancel</a>            
     </form>
+    <!-- Change the file name when choose file -->
+    <script>
+        $(document).ready(function(){
+            $('.custom-file-input').on('change',function(){
+                let fileName = $(this).val();
+                $(this).next('.custom-file-label').html(fileName);
+                //alert(fileName);
+            })
+        });
+    </script>    
 @endsection

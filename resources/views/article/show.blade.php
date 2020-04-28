@@ -20,8 +20,11 @@
             @method('DELETE')
         </form>
     @endauth
-    <br>   <br>
+    <br><br>
     <h1>{{ $article->title }}</h1>
+    @if($article->image !== "noimage.jpeg")
+        <img style="width:80%" class="pt-3 pb-3" src="/storage/images/{{ $article->image }}">
+    @endif
     <p>{{ $article->excerpt }}</p>
     <p>{{ $article->body }}</p>
     <p>

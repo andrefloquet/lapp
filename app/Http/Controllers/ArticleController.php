@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use \App\Article;
 use \App\Tag;
 use \App\Auth;
@@ -74,8 +75,24 @@ class ArticleController extends Controller
 
         $this->validateArticle();
 
+        if ($request->hasFile('image')) {
+            // Avoid file names duplicated
+            $fileNameWithExt = $request->file('image')->getClientOriginalName();
+            // Just file name
+            $fileName = pathinfo($fileNameWithExt, PATHINFO_FILENAME);
+            // Just file name
+            $extension = $request->file('image')->extension();
+            // Name to Store
+            $fileNameToStore = $fileName.'_'.time().'.'.$extension;
+            // Store on disk
+            $path = $request->file('image')->storeAs('public/images', $fileNameToStore);
+        } else {
+            $fileNameToStore = "noimage.jpeg";
+        }
+
         $article = new Article(request(["title","excerpt","body"]));        
         $article->user_id = auth()->user()->id;
+        $article->image = $fileNameToStore;
         $article->save();
 
         $article->tags()->attach(request('tags'));
@@ -123,14 +140,34 @@ class ArticleController extends Controller
         //$article->update($this->validateArticle());
 
         $this->validateArticle();
+        $article->update(request(["title","excerpt","body"])); 
 
-        $article->update(request(["title","excerpt","body"]));        
+        if ($request->hasFile('image')) {
+            // Avoid file names duplicated
+            $fileNameWithExt = $request->file('image')->getClientOriginalName();
+            // Just file name
+            $fileName = pathinfo($fileNameWithExt, PATHINFO_FILENAME);
+            // Just file name
+            $extension = $request->file('image')->extension();
+            // Name to Store
+            $fileNameToStore = $fileName.'_'.time().'.'.$extension;
+            // Delete on disk the old image
+            if($article->image != "noimage.jpeg"){
+                Storage::delete('public/images/'.$article->image);  
+            }
+            // Store on disk the new one
+            $path = $request->file('image')->storeAs('public/images', $fileNameToStore);
+            // Update with new image name
+            $article->image = $fileNameToStore;
+        } 
+
+        // Persist update
         $article->save();
 
+        // (Delete or detach) Tags
         $article->tags()->detach();
+        // Attach new tags
         $article->tags()->attach(request('tags'));
-
-        //return redirect(route('article.index'))->with('success', 'Article Inserted');
 
         return redirect($article->path())->with('success', 'Article Updated');
     }
@@ -143,6 +180,11 @@ class ArticleController extends Controller
      */
     public function destroy(Article $article)
     {
+        if($article->image != "noimage.jpeg") {
+            // Delete image on disk
+            Storage::delete('public/images/'.$article->image);
+        }
+        
         $article->delete();
         return redirect(route('article.index'))->with('success', 'Article Deleted');
     }
@@ -153,7 +195,8 @@ class ArticleController extends Controller
             'title' => 'required|max:255',
             'excerpt' => 'required',
             'body' => 'required',
-            'tags' => 'exists:tags,id'
+            'tags' => 'exists:tags,id',
+            'image' => 'image|nullable|max:1999'
         ]);
     }    
 }

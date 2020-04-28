@@ -10,6 +10,7 @@ $factory->define(Article::class, function (Faker $faker) {
         "user_id" => factory(\App\User::class),
         "title" => $faker->sentence,
         "excerpt" => $faker->sentence,
-        "body" => $faker->text(2000)
+        "body" => $faker->text(2000),
+        "image" => "noimage.jpeg"
     ];
 });
